@@ -1,70 +1,55 @@
-# Getting Started with Create React App
+# A SIMPLE REDUX ASYNC
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+简洁的异步Action演示应用
+
+基于Promise构建异步请求
 
 ## Available Scripts
 
-In the project directory, you can run:
+**`npm start`**
 
-### `npm start`
+当调用异步 API 时，有两个非常关键的时刻：发起请求的时刻，和接收到响应的时刻（也可能是超时）。
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
 
-### `npm test`
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-### `npm run build`
+这两个时刻都可能会更改应用的 state；为此，你需要 dispatch 普通的同步 action。一般情况下，每个 API 请求都需要 dispatch 至少三种 action：
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- **一种通知 reducer 请求开始的 action。**
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+  对于这种 action，reducer 可能会切换一下 state 中的 `isFetching` 标记。以此来告诉 UI 来显示加载界面。
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- **一种通知 reducer 请求成功的 action。**
 
-### `npm run eject`
+  对于这种 action，reducer 可能会把接收到的新数据合并到 state 中，并重置 `isFetching`。UI 则会隐藏加载界面，并显示接收到的数据。
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+- **一种通知 reducer 请求失败的 action。**
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+  对于这种 action，reducer 可能会重置 `isFetching`。另外，有些 reducer 会保存这些失败信息，并在 UI 里显示出来。
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+  
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+Action
 
-## Learn More
+* 请求开始 requestPosts() => 改变state.isFetching=>改变展示组件
+* 请求成功 receivePosts()  => 改变state.isFetching&items=>改变展示组件
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+容器组件
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+`VisibleInterface.js`
 
-### Code Splitting
+* ```js
+  import { connect } from 'react-redux';
+  import Interface from '../interface';
+  const mapStateToProps=(state)=>{
+      return{
+          isFetching:state.isFetching,
+          items:state.items
+      }
+  }
+  let VisibleInterface=connect(mapStateToProps)(Interface)
+  export default VisibleInterface;
+  ```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+  
